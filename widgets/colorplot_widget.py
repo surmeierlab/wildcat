@@ -1,21 +1,21 @@
 import sys
 from PyQt5 import QtCore, QtWidgets, QtGui
 import numpy as np
-from heatmap import Heatmap
+from widgets.colorplot import ColorPlot
 
 
-class HeatmapWidget(QtWidgets.QWidget):
+class ColorPlotWidget(QtWidgets.QWidget):
 
     def __init__(self):
         super().__init__()
         layout = QtWidgets.QVBoxLayout(self)
 
-        self.heatmap = Heatmap()
+        self.colorplot = ColorPlot()
         self.tab_widget = QtWidgets.QTabWidget()
         self.plot_tab = self.setup_plot_tab()
         self.tab_widget.addTab(self.plot_tab, 'Plots')
 
-        layout.addWidget(self.heatmap)
+        layout.addWidget(self.colorplot)
         layout.addWidget(self.tab_widget)
 
     def setup_plot_tab(self):
@@ -35,9 +35,9 @@ class HeatmapWidget(QtWidgets.QWidget):
 
         right_col = QtWidgets.QVBoxLayout()
         auto_btn = QtWidgets.QPushButton('Auto Z')
-        auto_btn.clicked.connect(self.heatmap.auto_range)
+        auto_btn.clicked.connect(self.colorplot.auto_range)
         peak_btn = QtWidgets.QPushButton('Find peak')
-        peak_btn.clicked.connect(self.heatmap.find_peak)
+        peak_btn.clicked.connect(self.colorplot.find_peak)
 
         right_col.addWidget(peak_btn)
         right_col.addWidget(auto_btn)
@@ -112,6 +112,6 @@ class ListPopup(QtWidgets.QDialog):
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    ex = HeatmapWidget()
+    ex = ColorPlotWidget()
     ex.show()
     sys.exit(app.exec_())

@@ -1,6 +1,6 @@
 import sys
 import pyqtgraph as pg
-from heatmap_widget import HeatmapWidget
+from widgets.colorplot_widget import ColorPlotWidget
 from PyQt5 import QtWidgets, QtGui
 import numpy as np
 
@@ -15,8 +15,8 @@ class VoltammetryPlotWidget(QtWidgets.QWidget):
 
         layout = QtWidgets.QHBoxLayout(self)
 
-        self.hmw = HeatmapWidget()
-        self.heatmap = self.hmw.heatmap
+        self.cpw = ColorPlotWidget()
+        self.colorplot = self.cpw.colorplot
 
         self.pw = pg.GraphicsLayoutWidget()
 
@@ -26,23 +26,23 @@ class VoltammetryPlotWidget(QtWidgets.QWidget):
         self.vplot.plot()
 
         layout.addWidget(self.pw)
-        layout.addWidget(self.hmw)
+        layout.addWidget(self.cpw)
 
-        self.heatmap.row_marker.sigPositionChanged.connect(self.update_iplot)
-        self.heatmap.col_marker.sigPositionChanged.connect(self.update_vplot)
+        self.colorplot.row_marker.sigPositionChanged.connect(self.update_iplot)
+        self.colorplot.col_marker.sigPositionChanged.connect(self.update_vplot)
 
         up = np.linspace(-0.4, 1.3, int(171/2)+1)
         down = up[::-1][1:]
         self.vms = np.append(up, down)
 
-        self.heatmap.find_peak()
+        self.colorplot.find_peak()
 
     def update_iplot(self, marker):
         """Updates current plot when row marker position is changed"""
         ix = int(marker.value())
         item = self.iplot.listDataItems()[0]
         try:
-            data = self.heatmap.data[:, ix]
+            data = self.colorplot.data[:, ix]
             item.setData(data, pen=pg.mkPen('b', width=1.5))
         except IndexError:
             pass
@@ -52,7 +52,7 @@ class VoltammetryPlotWidget(QtWidgets.QWidget):
         ix = int(marker.value())
         item = self.vplot.listDataItems()[0]
         try:
-            data = self.heatmap.data[ix, :]
+            data = self.colorplot.data[ix, :]
             item.setData(x=self.vms, y=data, pen=pg.mkPen('b', width=1.5))
         except IndexError:
             pass

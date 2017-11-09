@@ -5,11 +5,11 @@ import pandas as pd
 from PyQt5 import QtWidgets, QtGui
 
 
-class Heatmap(pg.PlotWidget):
+class ColorPlot(pg.PlotWidget):
 
     def __init__(self):
         super().__init__()
-        self.data = pd.read_csv('./voltam_data.csv').values.T
+        self.data = pd.read_csv('./dev/voltam_data.csv').values.T
         # self.data = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
 
         self.dmin = self.data.min()
@@ -17,7 +17,7 @@ class Heatmap(pg.PlotWidget):
         self.plt = self.plotItem
 
         # colors from cmap file
-        rgbs = np.loadtxt('./voltam_color.csv', delimiter=',')
+        rgbs = np.loadtxt('./dev/voltam_color.csv', delimiter=',')
         alphas = np.full((len(rgbs), 1), 1.0)
         self.colors = np.append(rgbs, alphas, axis=1)
 
@@ -96,6 +96,6 @@ class Heatmap(pg.PlotWidget):
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    ex = Heatmap()
+    ex = ColorPlot()
     ex.show()
     sys.exit(app.exec_())

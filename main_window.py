@@ -3,7 +3,7 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 import neurphys.read_abf as abf
 import neurphys.read_pv as rpv
-from voltammetry_plot_widget import VoltammetryPlotWidget
+from widgets.voltammetry_plot_widget import VoltammetryPlotWidget
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -59,13 +59,10 @@ class MainWindow(QtWidgets.QMainWindow):
         window.resize(self.mdi.size()*0.5)
         window.show()
 
-
     def load_abf(self):
-        abf_file = QtWidgets.QFileDialog().getOpenFileName(self,
-                                                           caption='Select .abf file',
-                                                           directory = self.current_dir,
-                                                           filter = '*.abf'
-                                                           )[0]
+        params = {'caption': 'Select .abf file', 'directory': self.current_dir,
+                  'filter': '*.abf'}
+        abf_file = QtWidgets.QFileDialog().getOpenFileName(self, **params)[0]
         if any(abf_file):
             df = abf.read_abf(abf_file)
             self.gen_analysis_window(abf_file, df)
