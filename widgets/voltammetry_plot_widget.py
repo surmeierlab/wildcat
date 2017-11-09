@@ -1,7 +1,7 @@
 import sys
 import pyqtgraph as pg
 from widgets.colorplot_widget import ColorPlotWidget
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets
 import numpy as np
 
 
@@ -58,10 +58,8 @@ class VoltammetryPlotWidget(QtWidgets.QWidget):
             pass
 
 
-
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     ex = VoltammetryPlotWidget()
     ex.show()
     sys.exit(app.exec_())
-

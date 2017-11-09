@@ -1,8 +1,16 @@
-import neurphys.read_abf as abf
+import extra.io as io
+from PyQt5 import QtCore
 
 
 class DataManager(object):
 
-    def __init__(self, path, full_dataframe):
+    sigDataChanged = QtCore.Signal(object)
+
+    def __init__(self, path, base_df, data_column):
         self.path = path
-        self.full_df = full_dataframe
+        self.full_df = base_df
+        self.data_col = data_column
+
+        if len(self.full_df.index.levels[0]) == 1:
+            self.split_df = io.split_trace(self.full_df,
+                                           channel=self.data_col)

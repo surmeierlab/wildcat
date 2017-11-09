@@ -3,7 +3,9 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 import neurphys.read_abf as abf
 import neurphys.read_pv as rpv
+from neo import io
 from widgets.voltammetry_plot_widget import VoltammetryPlotWidget
+from data_manager import DataManager
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -47,13 +49,13 @@ class MainWindow(QtWidgets.QMainWindow):
         # file_menu.addAction(export_action)
         # file_menu.addAction(file_clear_action)
 
-    def gen_analysis_window(self, filepath, base_df):
+    def gen_analysis_window(self, data_manager):
         vpw = VoltammetryPlotWidget()
         window = QtWidgets.QMdiSubWindow()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         window.setWidget(vpw)
-        window.setWindowTitle(os.path.split(filepath)[-1])
-        window.setToolTip(filepath)
+        window.setWindowTitle(os.path.split(data_manager.path)[-1])
+        window.setToolTip(data_manager.path)
 
         self.mdi.addSubWindow(window)
         window.resize(self.mdi.size()*0.5)
@@ -65,10 +67,73 @@ class MainWindow(QtWidgets.QMainWindow):
         abf_file = QtWidgets.QFileDialog().getOpenFileName(self, **params)[0]
         if any(abf_file):
             df = abf.read_abf(abf_file)
-            self.gen_analysis_window(abf_file, df)
+            data_col = df.columns[0]
+            for i, unit in enumerate(df.channel_units):
+                if unit in ['mA', 'pA', 'nA']:
+                    data_col = df.columns[i]
+                    break
+            # dm = DataManager(abf_file, df, data_col)
+            out = RecordingDialog.return_values()
+            print(out)
+            # self.gen_analysis_window(dm)
 
     def load_pv(self):
         pass
+
+
+class RecordingDialog(QtWidgets.QDialog):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QtWidgets.QVBoxLayout(self)
+
+        rate_layout = QtWidgets.QHBoxLayout()
+        rate_label = QtWidgets.QLabel('Scan Rate (V/s):')
+        self.rate_input = QtWidgets.QLineEdit('400')
+        rate_layout.addWidget(rate_label)
+        rate_layout.addWidget(self.rate_input)
+
+        min_layout = QtWidgets.QHBoxLayout()
+        min_label = QtWidgets.QLabel('Ramp Min (V):')
+        self.min_input = QtWidgets.QLineEdit('-0.4')
+        min_layout.addWidget(min_label)
+        min_layout.addWidget(self.min_input)
+
+        max_layout = QtWidgets.QHBoxLayout()
+        max_label = QtWidgets.QLabel('Ramp Max (V):')
+        self.max_input = QtWidgets.QLineEdit('1.3')
+        max_layout.addWidget(max_label)
+        max_layout.addWidget(self.max_input)
+
+        buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok |
+                                             QtWidgets.QDialogButtonBox.Cancel,
+                                             QtCore.Qt.Horizontal, self)
+        buttons.setCenterButtons(True)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+
+        layout.addLayout(rate_layout)
+        layout.addLayout(min_layout)
+        layout.addLayout(max_layout)
+        layout.addWidget(buttons)
+
+    def change_rate(self):
+        print(self.rate_input.text())
+
+    @staticmethod
+    def return_values():
+        dialog = RecordingDialog()
+        result = dialog.exec_()
+        try:
+            rate_val = float(dialog.rate_input.text())
+            min_val = float(dialog.min_input.text())
+            max_val = float(dialog.max_input.text())
+        except ValueError:
+            QtWidgets.QMessageBox.about(None, "Error",
+                                        "Values must be numeric")
+            dialog.return_values()
+
+        return rate_val, min_val, max_val, result
 
 
 if __name__ == '__main__':

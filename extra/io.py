@@ -1,4 +1,9 @@
-def break_up_trace(df, duration, peak, channel='primary'):
+import numpy as np
+import pandas as pd
+import neurphys.pacemaking as pace
+
+
+def split_trace(df, duration, peak, channel='primary'):
     sampling = 1/(df.time.iloc[1] - df.time.iloc[0])
     ixs = pace.detect_peaks(df[channel], mph=peak*0.9, mpd=100)
 
