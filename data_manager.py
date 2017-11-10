@@ -1,14 +1,16 @@
 import extra.io as io
 from PyQt5 import QtCore
 import numpy as np
+from PyQt5 import QtCore
 
 
-class DataManager(object):
+class DataManager(QtCore.QObject):
 
     sigDataChanged = QtCore.Signal(object)
 
     def __init__(self, path, base_df, data_column='primary',
                  scan_rate=400, ramp_min=-0.4, ramp_max=1.3):
+        super().__init__()
         self.path = path
         self.full_df = base_df
         self.data_col = data_column
@@ -48,10 +50,10 @@ class DataManager(object):
         mask[ignore_ixs] = False
         self.cp_data = self.cp_data[mask]
         self.update_vms()
+        self.sigDataChanged.emit(self)
 
     def update_vms(self):
         npoints = self.cp_data.shape[1]
-        print(npoints)
         up = np.linspace(self.ramp_min, self.ramp_max, int(npoints/2)+1)
         down = up[::-1][1:]
         self.vms = np.append(up, down)
