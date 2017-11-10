@@ -65,17 +65,27 @@ class MainWindow(QtWidgets.QMainWindow):
         params = {'caption': 'Select .abf file', 'directory': self.current_dir,
                   'filter': '*.abf'}
         abf_file = QtWidgets.QFileDialog().getOpenFileName(self, **params)[0]
+        while any(abf_file):
+            rate, vmin, vmax, accepted = RecordingDialog.return_values(self)
+            if not accepted:
+                return
+            try:
+                rate = float(rate)
+                vmin = float(vmin)
+                vmax = float(vmax)
+                print(rate, vmin, vmax)
+                break
+            except ValueError:
+                QtWidgets.QMessageBox.about(self, 'Error', 'Fix')
+
         if any(abf_file):
             df = abf.read_abf(abf_file)
             data_col = df.columns[0]
             for i, unit in enumerate(df.channel_units):
-                if unit in ['mA', 'pA', 'nA']:
+                if unit in ['pA', 'nA']:
                     data_col = df.columns[i]
                     break
-            # dm = DataManager(abf_file, df, data_col)
-            out = RecordingDialog.return_values()
-            print(out)
-            # self.gen_analysis_window(dm)
+            print('here')
 
     def load_pv(self):
         pass
@@ -121,17 +131,20 @@ class RecordingDialog(QtWidgets.QDialog):
         print(self.rate_input.text())
 
     @staticmethod
-    def return_values():
-        dialog = RecordingDialog()
+    def return_values(parent=None):
+        dialog = RecordingDialog(parent)
         result = dialog.exec_()
-        try:
-            rate_val = float(dialog.rate_input.text())
-            min_val = float(dialog.min_input.text())
-            max_val = float(dialog.max_input.text())
-        except ValueError:
-            QtWidgets.QMessageBox.about(None, "Error",
-                                        "Values must be numeric")
-            dialog.return_values()
+        # try:
+        #     rate_val = float(dialog.rate_input.text())
+        #     min_val = float(dialog.min_input.text())
+        #     max_val = float(dialog.max_input.text())
+        # except ValueError:
+        #     QtWidgets.QMessageBox.about(None, "Error",
+        #                                 "Values must be numeric")
+        #     dialog.return_values()
+        rate_val = dialog.rate_input.text()
+        min_val = dialog.min_input.text()
+        max_val = dialog.max_input.text()
 
         return rate_val, min_val, max_val, result
 
