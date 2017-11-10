@@ -24,11 +24,12 @@ class ColorPlotWidget(QtWidgets.QWidget):
         layout = QtWidgets.QHBoxLayout(plot_tab)
 
         left_col = QtWidgets.QVBoxLayout()
+        sweeps = list(range(1, self.dm.num_sweeps+1))
         bsl_button = QtWidgets.QPushButton('Baseline Sweeps')
-        bsl_popup = ListPopup(self, 'Baseline Sweeps', list(range(400)))
+        bsl_popup = ListPopup(self, 'Baseline Sweeps', sweeps)
         bsl_button.clicked.connect(lambda: self.toggle_popup(bsl_button, bsl_popup))
         ignore_button = QtWidgets.QPushButton('Ignore Sweeps')
-        ignore_popup = ListPopup(self, 'Ignore Sweeps', list(range(400)))
+        ignore_popup = ListPopup(self, 'Ignore Sweeps', sweeps)
         ignore_button.clicked.connect(lambda: self.toggle_popup(ignore_button, ignore_popup))
 
         left_col.addWidget(bsl_button)

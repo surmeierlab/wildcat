@@ -33,6 +33,7 @@ class DataManager(object):
             # are equivalent to only a single voltage cycle
             self.split_df = self.full_df.copy()
 
+        self.num_sweeps = len(self.split_df.index.levels[0])
         self.update_cp_data()
 
     def update_cp_data(self):
