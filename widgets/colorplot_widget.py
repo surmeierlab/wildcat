@@ -26,10 +26,12 @@ class ColorPlotWidget(QtWidgets.QWidget):
         left_col = QtWidgets.QVBoxLayout()
         sweeps = list(range(1, self.dm.num_sweeps+1))
         bsl_button = QtWidgets.QPushButton('Baseline Sweeps')
-        bsl_popup = ListPopup(self, 'Baseline Sweeps', sweeps)
+        bsl_popup = ListPopup(self, 'Baseline Sweeps', sweeps,
+                              self.dm.change_bsl_sweeps)
         bsl_button.clicked.connect(lambda: self.toggle_popup(bsl_button, bsl_popup))
         ignore_button = QtWidgets.QPushButton('Ignore Sweeps')
-        ignore_popup = ListPopup(self, 'Ignore Sweeps', sweeps)
+        ignore_popup = ListPopup(self, 'Ignore Sweeps', sweeps,
+                                 self.dm.change_ignore_sweeps)
         ignore_button.clicked.connect(lambda: self.toggle_popup(ignore_button, ignore_popup))
 
         left_col.addWidget(bsl_button)
@@ -59,9 +61,10 @@ class ColorPlotWidget(QtWidgets.QWidget):
 
 class ListPopup(QtWidgets.QDialog):
 
-    def __init__(self, parent, title, items):
+    def __init__(self, parent, title, items, setter):
         super().__init__(parent)
         self.setWindowTitle(title)
+        self.setter = setter
         layout = QtWidgets.QVBoxLayout(self)
         label = QtWidgets.QLabel('Select sweeps:')
 
@@ -109,7 +112,8 @@ class ListPopup(QtWidgets.QDialog):
 
     def changed(self):
         items = sorted([int(item.text()) for item in self.table.selectedItems()])
-        print(items)
+        # print(items)
+        self.setter(items)
 
 
 if __name__ == '__main__':

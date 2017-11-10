@@ -63,6 +63,7 @@ class ColorPlot(pg.PlotWidget):
 
         # connect for when cp_data changes
         self.dm.sigDataChanged.connect(self.set_cp_data)
+        self.dm.sigDataChanged.connect(self.find_peak)
 
     def _update_views(self):
         self.cbar_vb.setGeometry(self.plt.vb.sceneBoundingRect())

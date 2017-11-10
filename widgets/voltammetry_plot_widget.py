@@ -32,7 +32,10 @@ class VoltammetryPlotWidget(QtWidgets.QWidget):
 
         self.colorplot.row_marker.sigPositionChanged.connect(self.update_iplot)
         self.colorplot.col_marker.sigPositionChanged.connect(self.update_vplot)
-
+        self.dm.sigDataChanged.connect(lambda:
+                                       self.update_iplot(self.colorplot.row_marker))
+        self.dm.sigDataChanged.connect(lambda:
+                                       self.update_vplot(self.colorplot.col_marker))
         self.colorplot.find_peak()
 
     def update_iplot(self, marker):

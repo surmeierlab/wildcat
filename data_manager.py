@@ -18,10 +18,10 @@ class DataManager(QtCore.QObject):
         self.ramp_min = ramp_min
         self.ramp_max = 1.3
         self.ramp_dur = (self.ramp_max - self.ramp_min) / self.scan_rate * 2
-        # self.bsl_sweeps = []
-        # self.ignore_sweeps = []
-        self.bsl_sweeps = [190, 191, 192, 193, 194]
-        self.ignore_sweeps = list(range(1, 190))+list(range(251, 485))
+        self.bsl_sweeps = list(range(5))
+        self.ignore_sweeps = []
+        # self.bsl_sweeps = [190, 191, 192, 193, 194]
+        # self.ignore_sweeps = list(range(1, 190))+list(range(251, 485))
         self.cp_data = None
         self.vms = None
 
@@ -39,16 +39,17 @@ class DataManager(QtCore.QObject):
         self.update_cp_data()
 
     def update_cp_data(self):
-        bsl_ixs = np.array(self.bsl_sweeps) - 1
-        ignore_ixs = np.array(self.ignore_sweeps) - 1
-
         self.cp_data = self.split_df[self.data_col].unstack().values
-        avg = self.cp_data[bsl_ixs].mean(axis=0)
-        self.cp_data -= avg
+        if any(self.bsl_sweeps):
+            bsl_ixs = np.array(self.bsl_sweeps) - 1
+            avg = self.cp_data[bsl_ixs].mean(axis=0)
+            self.cp_data -= avg
 
-        mask = np.ones(self.cp_data.shape[0], dtype=np.bool)
-        mask[ignore_ixs] = False
-        self.cp_data = self.cp_data[mask]
+        if any(self.ignore_sweeps):
+            ignore_ixs = np.array(self.ignore_sweeps) - 1
+            mask = np.ones(self.cp_data.shape[0], dtype=np.bool)
+            mask[ignore_ixs] = False
+            self.cp_data = self.cp_data[mask]
         self.update_vms()
         self.sigDataChanged.emit(self)
 
@@ -57,3 +58,11 @@ class DataManager(QtCore.QObject):
         up = np.linspace(self.ramp_min, self.ramp_max, int(npoints/2)+1)
         down = up[::-1][1:]
         self.vms = np.append(up, down)
+
+    def change_bsl_sweeps(self, sweeps):
+        self.bsl_sweeps = sweeps
+        self.update_cp_data()
+
+    def change_ignore_sweeps(self, sweeps):
+        self.ignore_sweeps = sweeps
+        self.update_cp_data()
