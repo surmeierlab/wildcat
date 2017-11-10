@@ -7,9 +7,11 @@ from PyQt5 import QtWidgets, QtGui
 
 class ColorPlot(pg.PlotWidget):
 
-    def __init__(self):
+    def __init__(self, dm):
         super().__init__()
-        self.data = pd.read_csv('./dev/voltam_data.csv').values.T
+        self.dm = dm
+        # self.data = pd.read_csv('./dev/voltam_data.csv').values.T
+        self.data = self.dm.cp_data
         # self.data = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
 
         self.dmin = self.data.min()
@@ -93,6 +95,7 @@ class ColorPlot(pg.PlotWidget):
         col, row = np.where(self.data == self.data.max())
         self.col_marker.setValue(col)
         self.row_marker.setValue(row)
+
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)

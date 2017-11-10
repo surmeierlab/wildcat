@@ -6,11 +6,12 @@ from widgets.colorplot import ColorPlot
 
 class ColorPlotWidget(QtWidgets.QWidget):
 
-    def __init__(self):
+    def __init__(self, dm=None):
         super().__init__()
+        self.dm = dm
         layout = QtWidgets.QVBoxLayout(self)
 
-        self.colorplot = ColorPlot()
+        self.colorplot = ColorPlot(self.dm)
         self.tab_widget = QtWidgets.QTabWidget()
         self.plot_tab = self.setup_plot_tab()
         self.tab_widget.addTab(self.plot_tab, 'Plots')

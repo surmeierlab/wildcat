@@ -7,15 +7,17 @@ import numpy as np
 
 class VoltammetryPlotWidget(QtWidgets.QWidget):
 
-    def __init__(self):
+    def __init__(self, dm=None):
         super().__init__()
         self.setStyleSheet('background-color: white;')
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
 
+        self.dm = dm
+
         layout = QtWidgets.QHBoxLayout(self)
 
-        self.cpw = ColorPlotWidget()
+        self.cpw = ColorPlotWidget(self.dm)
         self.colorplot = self.cpw.colorplot
 
         self.pw = pg.GraphicsLayoutWidget()
@@ -30,10 +32,6 @@ class VoltammetryPlotWidget(QtWidgets.QWidget):
 
         self.colorplot.row_marker.sigPositionChanged.connect(self.update_iplot)
         self.colorplot.col_marker.sigPositionChanged.connect(self.update_vplot)
-
-        up = np.linspace(-0.4, 1.3, int(171/2)+1)
-        down = up[::-1][1:]
-        self.vms = np.append(up, down)
 
         self.colorplot.find_peak()
 
@@ -53,7 +51,7 @@ class VoltammetryPlotWidget(QtWidgets.QWidget):
         item = self.vplot.listDataItems()[0]
         try:
             data = self.colorplot.data[ix, :]
-            item.setData(x=self.vms, y=data, pen=pg.mkPen('b', width=1.5))
+            item.setData(x=self.dm.vms, y=data, pen=pg.mkPen('b', width=1.5))
         except IndexError:
             pass
 

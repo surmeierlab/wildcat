@@ -49,13 +49,13 @@ class MainWindow(QtWidgets.QMainWindow):
         # file_menu.addAction(export_action)
         # file_menu.addAction(file_clear_action)
 
-    def gen_analysis_window(self, data_manager):
-        vpw = VoltammetryPlotWidget()
+    def gen_analysis_window(self, dm):
+        vpw = VoltammetryPlotWidget(dm)
         window = QtWidgets.QMdiSubWindow()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         window.setWidget(vpw)
-        window.setWindowTitle(os.path.split(data_manager.path)[-1])
-        window.setToolTip(data_manager.path)
+        window.setWindowTitle(os.path.split(dm.path)[-1])
+        window.setToolTip(dm.path)
 
         self.mdi.addSubWindow(window)
         window.resize(self.mdi.size()*0.5)
@@ -73,7 +73,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 rate = float(rate)
                 vmin = float(vmin)
                 vmax = float(vmax)
-                print(rate, vmin, vmax)
                 break
             except ValueError:
                 QtWidgets.QMessageBox.about(self, 'Error', 'Fix')
@@ -85,7 +84,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 if unit in ['pA', 'nA']:
                     data_col = df.columns[i]
                     break
-            print('here')
+
+            dm = DataManager(abf_file, df, data_col, rate, vmin, vmax)
+            self.gen_analysis_window(dm)
 
     def load_pv(self):
         pass
@@ -134,14 +135,6 @@ class RecordingDialog(QtWidgets.QDialog):
     def return_values(parent=None):
         dialog = RecordingDialog(parent)
         result = dialog.exec_()
-        # try:
-        #     rate_val = float(dialog.rate_input.text())
-        #     min_val = float(dialog.min_input.text())
-        #     max_val = float(dialog.max_input.text())
-        # except ValueError:
-        #     QtWidgets.QMessageBox.about(None, "Error",
-        #                                 "Values must be numeric")
-        #     dialog.return_values()
         rate_val = dialog.rate_input.text()
         min_val = dialog.min_input.text()
         max_val = dialog.max_input.text()
