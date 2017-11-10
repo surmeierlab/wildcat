@@ -11,11 +11,11 @@ class ColorPlot(pg.PlotWidget):
         super().__init__()
         self.dm = dm
         # self.data = pd.read_csv('./dev/voltam_data.csv').values.T
-        self.data = self.dm.cp_data
         # self.data = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
 
-        self.dmin = self.data.min()
-        self.dmax = self.data.max()
+        self.data = None
+        self.dmin = None
+        self.dmax = None
         self.plt = self.plotItem
 
         # colors from cmap file
@@ -40,49 +40,51 @@ class ColorPlot(pg.PlotWidget):
         self.cbar_vb.setGeometry(self.plt.vb.sceneBoundingRect())
         self.plt.vb.setMouseEnabled(False, False)
         self.plt.setMenuEnabled(False)
-        self.cbar_vb.setRange(yRange=(self.dmin, self.dmax))
 
         # set up image item
         self.im = pg.ImageItem(self.data)
-        pos = np.linspace(self.dmin, self.dmax, len(self.colors))
-        cmap = pg.ColorMap(pos, self.colors)
-        lut = cmap.getLookupTable(self.dmin, self.dmax, self.data.size)
-        self.im.setLookupTable(lut)
         self.plt.vb.addItem(self.im)
-        self.plt.vb.setLimits(xMin=-1, xMax=self.data.shape[0]+1, yMin=-1, yMax=self.data.shape[1]+1)
+        self.set_cp_data()
+        self.auto_range()
 
         # add marker to plot vb
-        self.row_marker = pg.InfiniteLine(angle=0, pen=pg.mkPen('b', width=2.0), movable=True)
-        self.col_marker = pg.InfiniteLine(pen=pg.mkPen('g', width=2.0), movable=True)
+        pen = pg.mkPen('g', width=2.0)
+        self.row_marker = pg.InfiniteLine(angle=0, pen=pen, movable=True)
+        self.col_marker = pg.InfiniteLine(pen=pen, movable=True)
         self.plt.vb.addItem(self.row_marker)
         self.plt.vb.addItem(self.col_marker)
         self.row_marker.setBounds((0, self.data.shape[1]))
         self.col_marker.setBounds((0, self.data.shape[0]))
-        # self.find_peak()
-        # self.marker.sigDragged.connect(self.marker_moved)
 
         # connect cbar_vb for when Y axis changes
         self.cbar_vb.sigYRangeChanged.connect(self.update_levels)
         self._update_views()
         self.plt.vb.sigResized.connect(self._update_views)
 
+        # connect for when cp_data changes
+        self.dm.sigDataChanged.connect(self.set_cp_data)
+
     def _update_views(self):
         self.cbar_vb.setGeometry(self.plt.vb.sceneBoundingRect())
         self.cbar_vb.linkedViewChanged(self.plt.vb, self.cbar_vb.XAxis)
+
+    def set_cp_data(self):
+        self.data = self.dm.cp_data
+        self.dmin = self.data.min()
+        self.dmax = self.data.max()
+        self.im.setImage(self.data)
+        pos = np.linspace(self.dmin, self.dmax, len(self.colors))
+        cmap = pg.ColorMap(pos, self.colors)
+        lut = cmap.getLookupTable(self.dmin, self.dmax, self.data.size)
+        self.im.setLookupTable(lut)
+        self.plt.vb.setLimits(xMin=-1, xMax=self.data.shape[0]+1,
+                              yMin=-1, yMax=self.data.shape[1]+1)
 
     def update_levels(self, vb):
         """Updates heatmap levels based on changes in the colorbar axis
         and the associated viewbox"""
         _, yrange = vb.viewRange()
         self.im.setImage(levels=yrange)
-
-    def marker_moved(self, marker):
-        ix = int(marker.value())
-        try:
-            dmin = self.data[ix, :].min()
-            dmax = self.data[ix, :].max()
-        except IndexError:
-            pass
 
     def auto_range(self):
         self.cbar_vb.setRange(yRange=(self.dmin, self.dmax))
