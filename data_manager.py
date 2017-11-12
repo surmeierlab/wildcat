@@ -18,7 +18,7 @@ class DataManager(QtCore.QObject):
         self.ramp_min = ramp_min
         self.ramp_max = 1.3
         self.ramp_dur = (self.ramp_max - self.ramp_min) / self.scan_rate * 2
-        self.bsl_sweeps = list(range(5))
+        self.bsl_sweeps = []
         self.ignore_sweeps = []
         # self.bsl_sweeps = [190, 191, 192, 193, 194]
         # self.ignore_sweeps = list(range(1, 190))+list(range(251, 485))

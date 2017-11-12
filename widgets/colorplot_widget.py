@@ -73,25 +73,31 @@ class ListPopup(QtWidgets.QDialog):
 
         if len(items) >= 200:
             nrows = 20
-            self.table.setFixedHeight(700)
+            self.table.setFixedHeight(310)
         else:
             nrows = 10
-            self.table.setFixedHeight(350)
+            self.table.setFixedHeight(160)
         ncols = -1 * (-1 * len(items) // nrows)
 
         self.table.setColumnCount(ncols)
-        cellw = 50
-        [self.table.setColumnWidth(i, cellw) for i in range(ncols)]
-        self.table.setFixedWidth(cellw+cellw*ncols)
+        cellw = 40
+        self.table.verticalHeader().setDefaultSectionSize(15)
+        self.table.horizontalHeader().setDefaultSectionSize(cellw)
+        # [self.table.setColumnWidth(i, cellw) for i in range(ncols)]
+        self.table.setFixedWidth(cellw*ncols+10)
         self.table.setShowGrid(False)
         self.table.verticalHeader().setVisible(False)
         self.table.horizontalHeader().setVisible(False)
         self.table.itemSelectionChanged.connect(self.changed)
 
+        # TODO: make the cells uneditable
         for col in range(ncols):
             for row in range(nrows):
                 try:
-                    item = QtWidgets.QTableWidgetItem(str(items[row+col*nrows]))
+                    val = items[row+col*nrows]
+                    item = QtWidgets.QTableWidgetItem(str(val))
+                    item.setFlags(QtCore.Qt.ItemIsSelectable |
+                                  QtCore.Qt.ItemIsEnabled)
                     if self.table.rowCount() <= row:
                         self.table.insertRow(row)
                     item.setTextAlignment(QtCore.Qt.AlignCenter)
@@ -105,14 +111,15 @@ class ListPopup(QtWidgets.QDialog):
         # self.show()
 
     def set_position(self, widget):
-        point = widget.rect().topLeft()
+        # point = widget.rect().topLeft()
+        point = widget.rect().topRight()
         global_point = widget.mapToGlobal(point)
-        move_to = global_point - QtCore.QPoint(self.width(), self.height()/2)
+        # move_to = global_point - QtCore.QPoint(self.width(), self.height()/2)
+        move_to = global_point
         self.move(move_to)
 
     def changed(self):
         items = sorted([int(item.text()) for item in self.table.selectedItems()])
-        # print(items)
         self.setter(items)
 
 

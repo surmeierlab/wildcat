@@ -80,6 +80,7 @@ class ColorPlot(pg.PlotWidget):
         self.im.setLookupTable(lut)
         self.plt.vb.setLimits(xMin=-1, xMax=self.data.shape[0]+1,
                               yMin=-1, yMax=self.data.shape[1]+1)
+        self.auto_range()
 
     def update_levels(self, vb):
         """Updates heatmap levels based on changes in the colorbar axis
