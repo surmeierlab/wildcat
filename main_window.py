@@ -1,9 +1,8 @@
 import sys
 import os
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 import neurphys.read_abf as abf
-import neurphys.read_pv as rpv
-from neo import io
+# import neurphys.read_pv as rpv
 from widgets.voltammetry_plot_widget import VoltammetryPlotWidget
 from data_manager import DataManager
 

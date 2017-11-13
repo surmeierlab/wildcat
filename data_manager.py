@@ -1,7 +1,7 @@
 import extra.io as io
 from PyQt5 import QtCore
 import numpy as np
-from PyQt5 import QtCore
+from scipy.signal import bessel, butter, lfilter
 
 
 class DataManager(QtCore.QObject):
@@ -24,6 +24,13 @@ class DataManager(QtCore.QObject):
         # self.ignore_sweeps = list(range(1, 190))+list(range(251, 485))
         self.cp_data = None
         self.vms = None
+
+        sampling = 1/(self.full_df.time[1] - self.full_df.time[0])
+        nyq = 0.5*sampling
+        low = 0.125 / nyq
+        high = 1000 / nyq
+        order = 4
+        self.b, self.a = butter(N=order, Wn=[low, high], btype='bandpass')
 
         if len(self.full_df.index.levels[0]) == 1:
             self.split_df = io.split_trace(self.full_df,
@@ -50,6 +57,9 @@ class DataManager(QtCore.QObject):
             mask = np.ones(self.cp_data.shape[0], dtype=np.bool)
             mask[ignore_ixs] = False
             self.cp_data = self.cp_data[mask]
+
+        self.cp_data = np.apply_along_axis(lambda x: lfilter(self.b, self.a, x),
+                                           1, self.cp_data)
         self.update_vms()
         self.sigDataChanged.emit(self)
 

@@ -71,12 +71,14 @@ class ListPopup(QtWidgets.QDialog):
         self.table = QtWidgets.QTableWidget()
         self.table.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
 
-        if len(items) >= 200:
-            nrows = 20
-            self.table.setFixedHeight(310)
-        else:
-            nrows = 10
-            self.table.setFixedHeight(160)
+        # if len(items) >= 200:
+        #     nrows = 20
+        #     self.table.setFixedHeight(310)
+        # else:
+        #     nrows = 10
+        #     self.table.setFixedHeight(160)
+        nrows = int(len(items)**0.5)
+        self.table.setFixedHeight(15*nrows+15)
         ncols = -1 * (-1 * len(items) // nrows)
 
         self.table.setColumnCount(ncols)
@@ -115,7 +117,7 @@ class ListPopup(QtWidgets.QDialog):
         point = widget.rect().topRight()
         global_point = widget.mapToGlobal(point)
         # move_to = global_point - QtCore.QPoint(self.width(), self.height()/2)
-        move_to = global_point
+        move_to = global_point - QtCore.QPoint(0, self.height()/2)
         self.move(move_to)
 
     def changed(self):
@@ -124,7 +126,7 @@ class ListPopup(QtWidgets.QDialog):
 
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     ex = ColorPlotWidget()
     ex.show()
     sys.exit(app.exec_())
