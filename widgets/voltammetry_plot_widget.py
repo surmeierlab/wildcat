@@ -24,6 +24,11 @@ class VoltammetryPlotWidget(QtWidgets.QWidget):
 
         self.iplot = self.pw.addPlot(row=0, col=0, title='Current vs. Time')
         self.vplot = self.pw.addPlot(row=1, col=0, title="Voltammogram")
+        self.peak_txt = pg.TextItem()
+        # self.imin_text = pg.TextItem()
+        self.iplot.addItem(self.peak_txt)
+        # self.iplot.addItem(self.imin_text)
+        # self.iplot_txt.setPos(0, 0)
         self.iplot.plot()
         self.vplot.plot()
 
@@ -45,6 +50,20 @@ class VoltammetryPlotWidget(QtWidgets.QWidget):
         try:
             data = self.colorplot.data[:, ix]
             item.setData(data, pen=pg.mkPen('b', width=1.5))
+            ixmax = np.argmax(data)
+            ixmin = np.argmin(data)
+            if abs(data[ixmax]) >= abs(data[ixmin]):
+                peak_ix = ixmax
+                anchor_y = 1
+            else:
+                peak_ix = ixmin
+                anchor_y = 0
+            html = '''<span style="color: #000000; font-size: 12pt;">
+                      Peak = {:0.2f}</span>'''.format(data[peak_ix])
+            self.peak_txt.setHtml(html)
+            self.peak_txt.setPos(peak_ix, data[peak_ix])
+            self.peak_txt.setAnchor((0, anchor_y))
+
         except IndexError:
             pass
 
