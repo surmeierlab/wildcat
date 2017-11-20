@@ -5,6 +5,9 @@ import neurphys.read_abf as abf
 # import neurphys.read_pv as rpv
 from widgets.analysis_widget import AnalysisWidget
 from data_manager import DataManager
+import logging
+import traceback
+import time
 
 
 class Wildcat(QtWidgets.QApplication):
@@ -152,5 +155,15 @@ class RecordingDialog(QtWidgets.QDialog):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG, filename='./error.log',
+                        filemode='w')
+
+    def log_uncaught_exceptions(ex_cls, ex, tb):
+        logging.debug(time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime()))
+        logging.debug(''.join(traceback.format_tb(tb)))
+        logging.debug('{0}: {1}\n'.format(ex_cls, ex))
+
+    sys.excepthook = log_uncaught_exceptions
+
     app = Wildcat(sys.argv)
     sys.exit(app.exec_())
