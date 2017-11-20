@@ -1,4 +1,5 @@
 import sys
+from itertools import product
 from PyQt5 import QtCore, QtWidgets, QtGui
 import numpy as np
 from widgets.colorplot import ColorPlot
@@ -27,11 +28,13 @@ class ColorPlotWidget(QtWidgets.QWidget):
         sweeps = list(range(1, self.dm.num_sweeps+1))
         bsl_button = QtWidgets.QPushButton('Baseline Sweeps')
         bsl_popup = ListPopup(self, 'Baseline Sweeps', sweeps,
-                              self.dm.change_bsl_sweeps)
+                              setter=self.dm.change_bsl_sweeps,
+                              selected=self.dm.bsl_sweeps)
         bsl_button.clicked.connect(lambda: self.toggle_popup(bsl_button, bsl_popup))
         ignore_button = QtWidgets.QPushButton('Ignore Sweeps')
         ignore_popup = ListPopup(self, 'Ignore Sweeps', sweeps,
-                                 self.dm.change_ignore_sweeps)
+                                 setter=self.dm.change_ignore_sweeps,
+                                 selected=self.dm.ignore_sweeps)
         ignore_button.clicked.connect(lambda: self.toggle_popup(ignore_button, ignore_popup))
 
         left_col.addWidget(bsl_button)
@@ -61,7 +64,7 @@ class ColorPlotWidget(QtWidgets.QWidget):
 
 class ListPopup(QtWidgets.QDialog):
 
-    def __init__(self, parent, title, items, setter):
+    def __init__(self, parent, title, items, setter, selected=[]):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setter = setter
@@ -71,17 +74,12 @@ class ListPopup(QtWidgets.QDialog):
         self.table = QtWidgets.QTableWidget()
         self.table.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
 
-        # if len(items) >= 200:
-        #     nrows = 20
-        #     self.table.setFixedHeight(310)
-        # else:
-        #     nrows = 10
-        #     self.table.setFixedHeight(160)
         nrows = int(len(items)**0.5)
         self.table.setFixedHeight(15*nrows+15)
         ncols = -1 * (-1 * len(items) // nrows)
 
         self.table.setColumnCount(ncols)
+        self.table.setRowCount(nrows)
         cellw = 40
         self.table.verticalHeader().setDefaultSectionSize(15)
         self.table.horizontalHeader().setDefaultSectionSize(cellw)
@@ -90,23 +88,21 @@ class ListPopup(QtWidgets.QDialog):
         self.table.setShowGrid(False)
         self.table.verticalHeader().setVisible(False)
         self.table.horizontalHeader().setVisible(False)
-        self.table.itemSelectionChanged.connect(self.changed)
 
-        # TODO: make the cells uneditable
-        for col in range(ncols):
-            for row in range(nrows):
-                try:
-                    val = items[row+col*nrows]
-                    item = QtWidgets.QTableWidgetItem(str(val))
-                    item.setFlags(QtCore.Qt.ItemIsSelectable |
-                                  QtCore.Qt.ItemIsEnabled)
-                    if self.table.rowCount() <= row:
-                        self.table.insertRow(row)
-                    item.setTextAlignment(QtCore.Qt.AlignCenter)
-                    self.table.setItem(row, col, item)
-                except IndexError:
+        for col, row in product(range(ncols), range(nrows)):
+            try:
+                val = items[row+col*nrows]
+                item = QtWidgets.QTableWidgetItem(str(val))
+                item.setFlags(QtCore.Qt.ItemIsSelectable |
+                              QtCore.Qt.ItemIsEnabled)
+                item.setTextAlignment(QtCore.Qt.AlignCenter)
+                self.table.setItem(row, col, item)
+                if val in selected:
+                    item.setSelected(True)
+            except IndexError:
                     break
 
+        self.table.itemSelectionChanged.connect(self.changed)
         layout.addWidget(label)
         layout.addWidget(self.table)
 

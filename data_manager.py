@@ -18,10 +18,8 @@ class DataManager(QtCore.QObject):
         self.ramp_min = ramp_min
         self.ramp_max = 1.3
         self.ramp_dur = (self.ramp_max - self.ramp_min) / self.scan_rate * 2
-        self.bsl_sweeps = []
+        self.bsl_sweeps = list(range(6, 11))
         self.ignore_sweeps = []
-        # self.bsl_sweeps = [190, 191, 192, 193, 194]
-        # self.ignore_sweeps = list(range(1, 190))+list(range(251, 485))
         self.cp_data = None
         self.vms = None
 
@@ -43,6 +41,16 @@ class DataManager(QtCore.QObject):
             self.split_df = self.full_df.copy()
 
         self.num_sweeps = len(self.split_df.index.levels[0])
+        self.update_cp_data()
+
+        self.init_peak_ix = int(np.where(self.cp_data == self.cp_data.max())[0])
+        self.bsl_sweeps = list(range(self.init_peak_ix-9, self.init_peak_ix-4))
+
+        all_sweeps = np.arange(1, self.cp_data.shape[0]+1)
+        mask = np.ones(len(all_sweeps), np.bool)
+        mask[self.init_peak_ix-10:self.init_peak_ix+40] = False
+        self.ignore_sweeps = list(all_sweeps[mask])
+
         self.update_cp_data()
 
     def update_cp_data(self):

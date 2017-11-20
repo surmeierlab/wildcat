@@ -24,13 +24,10 @@ class VoltammetryPlotWidget(QtWidgets.QWidget):
 
         self.iplot = self.pw.addPlot(row=0, col=0, title='Current vs. Time')
         self.vplot = self.pw.addPlot(row=1, col=0, title="Voltammogram")
-        self.peak_txt = pg.TextItem()
-        # self.imin_text = pg.TextItem()
-        self.iplot.addItem(self.peak_txt)
-        # self.iplot.addItem(self.imin_text)
-        # self.iplot_txt.setPos(0, 0)
         self.iplot.plot()
         self.vplot.plot()
+        self.peak_txt = pg.TextItem()
+        self.iplot.addItem(self.peak_txt)
 
         layout.addWidget(self.pw)
         layout.addWidget(self.cpw)
