@@ -3,9 +3,17 @@ import os
 from PyQt5 import QtCore, QtWidgets
 import neurphys.read_abf as abf
 # import neurphys.read_pv as rpv
-# from widgets.voltammetry_plot_widget import VoltammetryPlotWidget
 from widgets.analysis_widget import AnalysisWidget
 from data_manager import DataManager
+
+
+class Wildcat(QtWidgets.QApplication):
+
+    def __init__(self, sys_argv):
+        super().__init__(sys_argv)
+
+        self.main_window = MainWindow()
+        self.main_window.show()
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -144,7 +152,5 @@ class RecordingDialog(QtWidgets.QDialog):
 
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    ex = MainWindow()
-    ex.show()
+    app = Wildcat(sys.argv)
     sys.exit(app.exec_())
