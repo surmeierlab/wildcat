@@ -6,7 +6,8 @@ from scipy.signal import bessel, butter, lfilter
 
 class DataManager(QtCore.QObject):
 
-    sigDataChanged = QtCore.Signal(object)
+    sigCPDataChanged = QtCore.Signal(object)
+    sigIPDataChanged = QtCore.Signal(object)
 
     def __init__(self, path, base_df, data_column='primary',
                  scan_rate=400, ramp_min=-0.4, ramp_max=1.3):
@@ -21,6 +22,7 @@ class DataManager(QtCore.QObject):
         self.bsl_sweeps = list(range(6, 11))
         self.ignore_sweeps = []
         self.cp_data = None
+        self.ip_data = None
         self.vms = None
 
         sampling = 1/(self.full_df.time[1] - self.full_df.time[0])
@@ -69,7 +71,11 @@ class DataManager(QtCore.QObject):
         self.cp_data = np.apply_along_axis(lambda x: lfilter(self.b, self.a, x),
                                            1, self.cp_data)
         self.update_vms()
-        self.sigDataChanged.emit(self)
+        self.sigCPDataChanged.emit(self)
+
+    def update_ip_data(self, data):
+        self.ip_data = data
+        self.sigIPDataChanged.emit(self)
 
     def update_vms(self):
         npoints = self.cp_data.shape[1]

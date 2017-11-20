@@ -3,7 +3,8 @@ import os
 from PyQt5 import QtCore, QtWidgets
 import neurphys.read_abf as abf
 # import neurphys.read_pv as rpv
-from widgets.voltammetry_plot_widget import VoltammetryPlotWidget
+# from widgets.voltammetry_plot_widget import VoltammetryPlotWidget
+from widgets.analysis_widget import AnalysisWidget
 from data_manager import DataManager
 
 
@@ -49,10 +50,11 @@ class MainWindow(QtWidgets.QMainWindow):
         # file_menu.addAction(file_clear_action)
 
     def gen_analysis_window(self, dm):
-        vpw = VoltammetryPlotWidget(dm)
+        # vpw = VoltammetryPlotWidget(dm)
+        aw = AnalysisWidget(dm)
         window = QtWidgets.QMdiSubWindow()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        window.setWidget(vpw)
+        window.setWidget(aw)
         window.setWindowTitle(os.path.split(dm.path)[-1])
         window.setToolTip(dm.path)
 

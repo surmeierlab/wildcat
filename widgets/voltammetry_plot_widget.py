@@ -34,10 +34,10 @@ class VoltammetryPlotWidget(QtWidgets.QWidget):
 
         self.colorplot.row_marker.sigPositionChanged.connect(self.update_iplot)
         self.colorplot.col_marker.sigPositionChanged.connect(self.update_vplot)
-        self.dm.sigDataChanged.connect(lambda:
-                                       self.update_iplot(self.colorplot.row_marker))
-        self.dm.sigDataChanged.connect(lambda:
-                                       self.update_vplot(self.colorplot.col_marker))
+        self.dm.sigCPDataChanged.connect(lambda:
+                                         self.update_iplot(self.colorplot.row_marker))
+        self.dm.sigCPDataChanged.connect(lambda:
+                                         self.update_vplot(self.colorplot.col_marker))
         self.colorplot.find_peak()
 
     def update_iplot(self, marker):
@@ -60,6 +60,8 @@ class VoltammetryPlotWidget(QtWidgets.QWidget):
             self.peak_txt.setHtml(html)
             self.peak_txt.setPos(peak_ix, data[peak_ix])
             self.peak_txt.setAnchor((0, anchor_y))
+
+            self.dm.update_ip_data(data)
 
         except IndexError:
             pass
