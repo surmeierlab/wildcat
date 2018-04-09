@@ -78,10 +78,11 @@ class MainWindow(QtWidgets.QMainWindow):
                   'filter': '*.abf'}
         abf_file = QtWidgets.QFileDialog().getOpenFileName(self, **params)[0]
         while any(abf_file):
-            rate, vmin, vmax, accepted = RecordingDialog.return_values(self)
+            freq, rate, vmin, vmax, accepted = RecordingDialog.return_values(self)
             if not accepted:
                 return
             try:
+                freq = float(freq)
                 rate = float(rate)
                 vmin = float(vmin)
                 vmax = float(vmax)
@@ -95,9 +96,11 @@ class MainWindow(QtWidgets.QMainWindow):
             for i, unit in enumerate(df.channel_units):
                 if unit in ['pA', 'nA']:
                     data_col = df.columns[i]
+                    data_unit = unit
                     break
 
-            dm = DataManager(abf_file, df, data_col, rate, vmin, vmax)
+            dm = DataManager(abf_file, df, data_col, data_unit,
+                             freq, rate, vmin, vmax)
             self.gen_analysis_window(dm)
 
     def load_pv(self):
@@ -109,6 +112,12 @@ class RecordingDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QtWidgets.QVBoxLayout(self)
+
+        freq_layout = QtWidgets.QHBoxLayout()
+        freq_label = QtWidgets.QLabel('Sampling Rate (Hz):')
+        self.freq_input = QtWidgets.QLineEdit('10')
+        freq_layout.addWidget(freq_label)
+        freq_layout.addWidget(self.freq_input)
 
         rate_layout = QtWidgets.QHBoxLayout()
         rate_label = QtWidgets.QLabel('Scan Rate (V/s):')
@@ -135,6 +144,7 @@ class RecordingDialog(QtWidgets.QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
 
+        layout.addLayout(freq_layout)
         layout.addLayout(rate_layout)
         layout.addLayout(min_layout)
         layout.addLayout(max_layout)
@@ -147,11 +157,12 @@ class RecordingDialog(QtWidgets.QDialog):
     def return_values(parent=None):
         dialog = RecordingDialog(parent)
         result = dialog.exec_()
+        freq_val = dialog.freq_input.text()
         rate_val = dialog.rate_input.text()
         min_val = dialog.min_input.text()
         max_val = dialog.max_input.text()
 
-        return rate_val, min_val, max_val, result
+        return freq_val, rate_val, min_val, max_val, result
 
 
 if __name__ == '__main__':

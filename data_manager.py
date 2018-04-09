@@ -9,21 +9,28 @@ class DataManager(QtCore.QObject):
     sigCPDataChanged = QtCore.Signal(object)
     sigIPDataChanged = QtCore.Signal(object)
 
-    def __init__(self, path, base_df, data_column='primary',
-                 scan_rate=400, ramp_min=-0.4, ramp_max=1.3):
+    def __init__(self, path, base_df, data_column='primary', data_unit='pA',
+                 sampling_freq=10, scan_rate=400, ramp_min=-0.4, ramp_max=1.3):
         super().__init__()
         self.path = path
         self.full_df = base_df
         self.data_col = data_column
+        print(self.full_df.columns)
+        self.data_unit = data_unit
+        self.sampling_freq = sampling_freq
         self.scan_rate = scan_rate
         self.ramp_min = ramp_min
         self.ramp_max = 1.3
         self.ramp_dur = (self.ramp_max - self.ramp_min) / self.scan_rate * 2
-        self.bsl_sweeps = list(range(6, 11))
-        self.ignore_sweeps = []
+        self.bsl_sweeps = list(range(10, 15))
+        self.ignore_sweeps = list(range(10))
         self.cp_data = None
         self.ip_data = None
         self.vms = None
+
+        if self.data_unit == 'pA':
+            self.full_df[self.data_col] /= 1000
+            self.data_unit = 'nA'
 
         sampling = 1/(self.full_df.time[1] - self.full_df.time[0])
         nyq = 0.5*sampling
@@ -36,7 +43,7 @@ class DataManager(QtCore.QObject):
             self.split_df = io.split_trace(self.full_df,
                                            self.ramp_dur,
                                            self.ramp_max,
-                                           self.data_col)
+                                           'channel_2')
         else:
             # TODO: confirm that if df has multiple levels, levels
             # are equivalent to only a single voltage cycle
