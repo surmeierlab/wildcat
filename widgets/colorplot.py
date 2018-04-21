@@ -19,7 +19,7 @@ class ColorPlot(pg.PlotWidget):
         self.plt = self.plotItem
 
         # colors from cmap file
-        rgbs = np.loadtxt('./dev/voltam_color.csv', delimiter=',')
+        rgbs = np.loadtxt('./extra/voltam_color.csv', delimiter=',')
         alphas = np.full((len(rgbs), 1), 1.0)
         self.colors = np.append(rgbs, alphas, axis=1)
 
