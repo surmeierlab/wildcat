@@ -24,6 +24,21 @@ class KineticsWidget(QtWidgets.QWidget):
         size_policy.setHorizontalStretch(0)
         size_policy.setVerticalStretch(0)
 
+        ## Parameters
+        param_label = QtWidgets.QLabel('Paramaters:')
+
+        # fit start
+        self.bsl_start_layout = QtWidgets.QHBoxLayout()
+        self.bsl_start_label = QtWidgets.QLabel('Baseline Start: ')
+        self.bsl_start_val = QtWidgets.QLineEdit('0.0')
+
+
+        # fit end
+
+        # baseline start
+
+        # baseline end
+          
         # rise tau
         self.rise_layout = QtWidgets.QHBoxLayout()
         self.rise_label = QtWidgets.QLabel('Rise tau: ')
@@ -114,8 +129,8 @@ class KineticsWidget(QtWidgets.QWidget):
         try:
             rise_fit, rise_popt = self.fit_rise(rise_sub, rise_sub_time)
         except RuntimeError:
-            rise_fit = np.full(rise_sub.size, 0)
-            rise_popt = [1, 1, 1]
+            rise_fit = np.full(rise_sub.size, np.nan)
+            rise_popt = [np.nan, np.nan, np.nan]
 
         # TODO implement decay start setting and fit stop
         decay_start = 0
