@@ -15,7 +15,7 @@ class DataManager(QtCore.QObject):
         self.path = path
         self.full_df = base_df
         self.data_col = data_column
-        print(self.full_df.columns)
+        # print(self.full_df.columns)
         self.data_unit = data_unit
         self.sampling_freq = sampling_freq
         self.scan_rate = scan_rate
@@ -27,6 +27,7 @@ class DataManager(QtCore.QObject):
         self.cp_data = None
         self.ip_data = None
         self.vms = None
+        self.init_cp_len = 0
 
         if self.data_unit == 'pA':
             self.full_df[self.data_col] /= 1000
@@ -55,7 +56,7 @@ class DataManager(QtCore.QObject):
         self.init_peak_ix = int(np.where(self.cp_data == self.cp_data.max())[0])
         self.bsl_sweeps = list(range(self.init_peak_ix-9, self.init_peak_ix-4))
 
-        all_sweeps = np.arange(1, self.cp_data.shape[0]+1)
+        all_sweeps = np.arange(1, self.init_cp_len+1)
         mask = np.ones(len(all_sweeps), np.bool)
         mask[self.init_peak_ix-10:self.init_peak_ix+40] = False
         self.ignore_sweeps = list(all_sweeps[mask])
@@ -64,6 +65,7 @@ class DataManager(QtCore.QObject):
 
     def update_cp_data(self):
         self.cp_data = self.split_df[self.data_col].unstack().values
+        self.init_cp_len = self.cp_data.shape[0]
         if any(self.bsl_sweeps):
             bsl_ixs = np.array(self.bsl_sweeps) - 1
             avg = self.cp_data[bsl_ixs].mean(axis=0)
