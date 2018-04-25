@@ -35,6 +35,11 @@ class ColorPlotWidget(QtWidgets.QWidget):
         ignore_popup = ListPopup(self, 'Ignore Sweeps', sweeps,
                                  setter=self.dm.change_ignore_sweeps,
                                  selected=self.dm.ignore_sweeps)
+        p = QtGui.QPalette(ignore_popup.table.palette())
+        p.setBrush(QtGui.QPalette.Active, QtGui.QPalette.HighlightedText, QtGui.QBrush(QtGui.QColor(96, 96, 96)))
+        p.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Highlight, QtGui.QBrush(QtGui.QColor(211, 211, 211)))
+        ignore_popup.table.setPalette(p)
+       
         ignore_button.clicked.connect(lambda: self.toggle_popup(ignore_button, ignore_popup))
 
         left_col.addWidget(bsl_button)
@@ -73,6 +78,10 @@ class ListPopup(QtWidgets.QDialog):
 
         self.table = QtWidgets.QTableWidget()
         self.table.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
+        # p = QtGui.QPalette(self.table.palette())
+        # p.setBrush(QtGui.QPalette.Active, QtGui.QPalette.HighlightedText, QtGui.QBrush(QtGui.QColor(96, 96, 96)))
+        # p.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Highlight, QtGui.QBrush(QtGui.QColor(211, 211, 211)))
+        # self.table.setPalette(p)
 
         nrows = int(len(items)**0.5)
         self.table.setFixedHeight(15*nrows+15)
@@ -96,6 +105,7 @@ class ListPopup(QtWidgets.QDialog):
                 item.setFlags(QtCore.Qt.ItemIsSelectable |
                               QtCore.Qt.ItemIsEnabled)
                 item.setTextAlignment(QtCore.Qt.AlignCenter)
+                # item.setBackground(QtGui.QColor(135, 184, 250))
                 self.table.setItem(row, col, item)
                 if val in selected:
                     item.setSelected(True)
