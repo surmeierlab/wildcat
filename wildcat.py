@@ -53,6 +53,11 @@ class MainWindow(QtWidgets.QMainWindow):
         load_menu.addAction(load_abf_action)
         load_menu.addAction(load_pv_action)
 
+        close_all_action = QtWidgets.QAction('Close All Files', self)
+        close_all_action.triggered.connect(self.clear_windows)
+
+        file_menu.addAction(close_all_action)
+
         # export_action = QtGui.QAction("Export", self)
         # export_action.triggered.connect(self.create_export_dialog)
         # file_clear_action = QtGui.QAction("Clear workspace", self)
@@ -105,6 +110,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def load_pv(self):
         pass
+
+    def clear_windows(self):
+        for window in self.mdi.subWindowList():
+            window.close()
 
 
 class RecordingDialog(QtWidgets.QDialog):
