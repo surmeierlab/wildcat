@@ -38,6 +38,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.mdi = QtWidgets.QMdiArea()
         self.setCentralWidget(self.mdi)
 
+        self.defaults = {'sampling_freq': 10
+                         , 'scan_rate': 400
+                         , 'ramp_min': -0.4
+                         , 'ramp_max': 1.3
+                        }
+
     def setup_file_menu(self):
         file_menu = self.menubar.addMenu("File")
 
@@ -92,7 +98,7 @@ class MainWindow(QtWidgets.QMainWindow):
             abf_file = QtWidgets.QFileDialog().getOpenFileName(self, **params)[0]
 
         while any(abf_file):
-            freq, rate, vmin, vmax, accepted = RecordingDialog.return_values(self)
+            freq, rate, vmin, vmax, accepted = RecordingDialog.return_values(self, **self.defaults)
             if not accepted:
                 return
             try:
@@ -100,6 +106,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 rate = float(rate)
                 vmin = float(vmin)
                 vmax = float(vmax)
+
+                self.defaults['sampling_freq'] = freq
+                self.defaults['scan_rate'] = rate
+                self.defaults['ramp_min'] = vmin
+                self.defaults['ramp_max'] = vmax
                 break
             except ValueError:
                 QtWidgets.QMessageBox.about(self, 'Error', 'Invalid entry. Must be numeric')
@@ -120,7 +131,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.current_dir = os.path.dirname(abf_file)
             files = [os.path.abspath(file) for file in glob(self.current_dir + './*.abf')]
             self.file_index = files.index(abf_file)
-            print(self.file_index)
 
             self.gen_analysis_window(dm)
     
@@ -146,31 +156,31 @@ class MainWindow(QtWidgets.QMainWindow):
 
 class RecordingDialog(QtWidgets.QDialog):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent, sampling_freq, scan_rate, ramp_min, ramp_max):
         super().__init__(parent)
         layout = QtWidgets.QVBoxLayout(self)
 
         freq_layout = QtWidgets.QHBoxLayout()
         freq_label = QtWidgets.QLabel('Sampling Rate (Hz):')
-        self.freq_input = QtWidgets.QLineEdit('10')
+        self.freq_input = QtWidgets.QLineEdit(f'{sampling_freq}')
         freq_layout.addWidget(freq_label)
         freq_layout.addWidget(self.freq_input)
 
         rate_layout = QtWidgets.QHBoxLayout()
         rate_label = QtWidgets.QLabel('Scan Rate (V/s):')
-        self.rate_input = QtWidgets.QLineEdit('400')
+        self.rate_input = QtWidgets.QLineEdit(f'{scan_rate}')
         rate_layout.addWidget(rate_label)
         rate_layout.addWidget(self.rate_input)
 
         min_layout = QtWidgets.QHBoxLayout()
         min_label = QtWidgets.QLabel('Ramp Min (V):')
-        self.min_input = QtWidgets.QLineEdit('-0.4')
+        self.min_input = QtWidgets.QLineEdit(f'{ramp_min}')
         min_layout.addWidget(min_label)
         min_layout.addWidget(self.min_input)
 
         max_layout = QtWidgets.QHBoxLayout()
         max_label = QtWidgets.QLabel('Ramp Max (V):')
-        self.max_input = QtWidgets.QLineEdit('1.3')
+        self.max_input = QtWidgets.QLineEdit(f'{ramp_max}')
         max_layout.addWidget(max_label)
         max_layout.addWidget(self.max_input)
 
@@ -191,8 +201,8 @@ class RecordingDialog(QtWidgets.QDialog):
         print(self.rate_input.text())
 
     @staticmethod
-    def return_values(parent=None):
-        dialog = RecordingDialog(parent)
+    def return_values(parent, **kwargs):
+        dialog = RecordingDialog(parent, **kwargs)
         result = dialog.exec_()
         freq_val = dialog.freq_input.text()
         rate_val = dialog.rate_input.text()
