@@ -8,6 +8,7 @@ from data_manager import DataManager
 import logging
 import traceback
 import time
+from glob import glob
 
 
 class Wildcat(QtWidgets.QApplication):
@@ -31,7 +32,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.menubar = self.menuBar()
         self.setup_file_menu()
-        self.current_dir = None
+        self.current_dir = ''
+        self.file_index = None
 
         self.mdi = QtWidgets.QMdiArea()
         self.setCentralWidget(self.mdi)
@@ -47,10 +49,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         load_abf_action = QtWidgets.QAction("Axon file (.abf)", self)
         load_abf_action.triggered.connect(self.load_abf)
+        next_abf_action = QtWidgets.QAction("Next Axon file", self) 
+        next_abf_action.triggered.connect(self.load_next_abf)
         load_pv_action = QtWidgets.QAction("PrairieView folder", self)
         load_pv_action.triggered.connect(self.load_pv)
 
         load_menu.addAction(load_abf_action)
+        load_menu.addAction(next_abf_action)
         load_menu.addAction(load_pv_action)
 
         close_all_action = QtWidgets.QAction('Close All Files', self)
@@ -78,10 +83,14 @@ class MainWindow(QtWidgets.QMainWindow):
         window.resize(self.mdi.size()*0.5)
         window.show()
 
-    def load_abf(self):
+    def load_abf(self, next=False):
         params = {'caption': 'Select .abf file', 'directory': self.current_dir,
                   'filter': '*.abf'}
-        abf_file = QtWidgets.QFileDialog().getOpenFileName(self, **params)[0]
+        if next:
+            abf_file = self.get_next_abf()
+        else:
+            abf_file = QtWidgets.QFileDialog().getOpenFileName(self, **params)[0]
+
         while any(abf_file):
             freq, rate, vmin, vmax, accepted = RecordingDialog.return_values(self)
             if not accepted:
@@ -106,7 +115,26 @@ class MainWindow(QtWidgets.QMainWindow):
 
             dm = DataManager(abf_file, df, data_col, data_unit,
                              freq, rate, vmin, vmax)
+
+            abf_file = os.path.abspath(abf_file)
+            self.current_dir = os.path.dirname(abf_file)
+            files = [os.path.abspath(file) for file in glob(self.current_dir + './*.abf')]
+            self.file_index = files.index(abf_file)
+            print(self.file_index)
+
             self.gen_analysis_window(dm)
+    
+    def load_next_abf(self):
+        self.load_abf(next=True)
+
+    def get_next_abf(self):
+        files = glob(self.current_dir + '/*.abf')
+        if any(files):
+            try:
+                return files[self.file_index+1]
+            except IndexError:
+                return files[0]
+        return ''
 
     def load_pv(self):
         pass
