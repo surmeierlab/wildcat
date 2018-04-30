@@ -102,7 +102,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 vmax = float(vmax)
                 break
             except ValueError:
-                QtWidgets.QMessageBox.about(self, 'Error', 'Fix')
+                QtWidgets.QMessageBox.about(self, 'Error', 'Invalid entry. Must be numeric')
 
         if any(abf_file):
             df = abf.read_abf(abf_file)
