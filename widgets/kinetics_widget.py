@@ -89,9 +89,9 @@ class KineticsWidget(QtWidgets.QWidget):
         self.decay_layout.addWidget(self.decay_label)
         self.decay_layout.addWidget(self.decay_val)
 
-        run_btn = QtWidgets.QPushButton('Run Fit')
-        run_btn.clicked.connect(self.fit_transient)
-        run_btn.setFixedWidth(200)
+        self.run_btn = QtWidgets.QPushButton('Run Fit')
+        self.run_btn.clicked.connect(self.fit_transient)
+        self.run_btn.setFixedWidth(200)
 
         left_col.addWidget(param_label)
         left_col.addLayout(self.start_layout)
@@ -100,7 +100,12 @@ class KineticsWidget(QtWidgets.QWidget):
         left_col.addWidget(output_label)
         left_col.addLayout(self.rise_layout)
         left_col.addLayout(self.decay_layout)
-        left_col.addWidget(run_btn)
+        left_col.addWidget(self.run_btn)
+
+        # change focus back to button after done editing
+        self.start_val.editingFinished.connect(self.select_btn)
+        self.end_val.editingFinished.connect(self.select_btn)
+        self.delta_val.editingFinished.connect(self.select_btn)
 
         # plot widget
         self.pw = pg.PlotWidget()
@@ -116,6 +121,10 @@ class KineticsWidget(QtWidgets.QWidget):
         layout.addWidget(self.pw)
 
         self.dm.sigIPDataChanged.connect(self.set_plot_data)
+
+    def select_btn(self):
+        self.run_btn.setFocus()
+        self.run_btn.setAutoDefault(True)
 
     def set_plot_data(self):
         dlen = len(self.dm.ip_data)
