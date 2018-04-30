@@ -44,8 +44,6 @@ class ColorPlot(pg.PlotWidget):
         # set up image item
         self.im = pg.ImageItem(self.data)
         self.plt.vb.addItem(self.im)
-        self.set_cp_data()
-        self.auto_range()
 
         # add marker to plot vb
         pen = pg.mkPen('g', width=2.0)
@@ -53,8 +51,9 @@ class ColorPlot(pg.PlotWidget):
         self.col_marker = pg.InfiniteLine(pen=pen, movable=True)
         self.plt.vb.addItem(self.row_marker)
         self.plt.vb.addItem(self.col_marker)
-        self.row_marker.setBounds((0, self.data.shape[1]))
-        self.col_marker.setBounds((0, self.data.shape[0]))
+
+        self.set_cp_data()
+        # self.auto_range()
 
         # connect cbar_vb for when Y axis changes
         self.cbar_vb.sigYRangeChanged.connect(self.update_levels)
@@ -80,6 +79,8 @@ class ColorPlot(pg.PlotWidget):
         self.im.setLookupTable(lut)
         self.plt.vb.setLimits(xMin=-1, xMax=self.data.shape[0]+1,
                               yMin=-1, yMax=self.data.shape[1]+1)
+        self.row_marker.setBounds((0, self.data.shape[1]))
+        self.col_marker.setBounds((0, self.data.shape[0]))
         self.auto_range()
 
     def update_levels(self, vb):
