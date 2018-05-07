@@ -89,6 +89,17 @@ class KineticsWidget(QtWidgets.QWidget):
         self.decay_layout.addWidget(self.decay_label)
         self.decay_layout.addWidget(self.decay_val)
 
+        # time to peak
+        self.ttp_layout = QtWidgets.QHBoxLayout()
+        self.ttp_label = QtWidgets.QLabel('Time to Peak: ')
+        self.ttp_label.setFixedWidth(120)
+        self.ttp_val = QtWidgets.QLineEdit()
+        self.ttp_val.setSizePolicy(size_policy)
+        self.ttp_val.setFixedWidth(70)
+        self.ttp_val.setReadOnly(True)
+        self.ttp_layout.addWidget(self.ttp_label)
+        self.ttp_layout.addWidget(self.ttp_val)
+
         self.run_btn = QtWidgets.QPushButton('Run Fit')
         self.run_btn.clicked.connect(self.fit_transient)
         self.run_btn.setFixedWidth(200)
@@ -100,6 +111,7 @@ class KineticsWidget(QtWidgets.QWidget):
         left_col.addWidget(output_label)
         left_col.addLayout(self.rise_layout)
         left_col.addLayout(self.decay_layout)
+        left_col.addLayout(self.ttp_layout)
         left_col.addWidget(self.run_btn)
 
         # change focus back to button after done editing
@@ -112,6 +124,7 @@ class KineticsWidget(QtWidgets.QWidget):
         self.pw.plotItem.setLabel('left', 'Current (%s)' % self.dm.data_unit)
         self.plot = self.pw.plotItem.plot()
         self.fit_plot = self.pw.plotItem.plot()
+        self.ttp_plot = self.pw.plotItem.plot()
 
         line = QtWidgets.QFrame()
         line.setFrameShape(QtWidgets.QFrame.VLine)
@@ -134,6 +147,7 @@ class KineticsWidget(QtWidgets.QWidget):
         self.plot.setData(self.time, self.dm.ip_data, pen=pg.mkPen('b', width=1.5),
                           symbol='o')
         self.fit_plot.clear()
+        self.ttp_plot.clear()
 
     def fit_decay(self, subset, time):
         def eq(x, a, b, c):
@@ -190,20 +204,26 @@ class KineticsWidget(QtWidgets.QWidget):
             decay_fit, decay_popt = self.fit_decay(decay_sub, decay_sub_time)
         except RuntimeError:
             decay_fit = np.full(decay_sub.size, 0) 
-            decay_popt = [1, 1, 1]
+            decay_popt = [np.nan, np.nan, np.nan]
+
+        # time to peak
+        start_ix = np.where(np.gradient(current) > 1)[0][0]
+        time_to_peak = self.time[peak_ix] - self.time[start_ix]
 
         # values to write to text boxes
         rise_tau = 1/rise_popt[1]
         self.rise_val.setText(f'{rise_tau:0.3f}')
         decay_tau = 1/decay_popt[1]
         self.decay_val.setText(f'{decay_tau:0.3f}')
+        self.ttp_val.setText(f'{time_to_peak:0.3f}')
 
         # plotting fit
         full_sub_time = np.append(rise_sub_time, decay_sub_time)
         full_fit = np.append(rise_fit, decay_fit)
         self.fit_plot.setData(full_sub_time, full_fit, pen=pg.mkPen('r', width=1.5))
 
-
-
-
-
+        # plot points used in time to peak calculation
+        x = [self.time[start_ix], self.time[peak_ix]]
+        y = [current[start_ix], current[peak_ix]]
+        self.ttp_plot.setData(x, y, pen=None, symbol='o', symbolPen=pg.mkPen('m')
+                              , symbolBrush=pg.mkBrush('m'))
