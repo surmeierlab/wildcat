@@ -1,7 +1,7 @@
 import sys
 import pyqtgraph as pg
 from widgets.colorplot_widget import ColorPlotWidget
-from PyQt5 import QtWidgets
+from PySide2 import QtWidgets
 import numpy as np
 
 

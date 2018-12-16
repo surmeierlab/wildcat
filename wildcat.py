@@ -1,6 +1,6 @@
 import sys
 import os
-from PyQt5 import QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets
 import neurphys.read_abf as abf
 # import neurphys.read_pv as rpv
 from widgets.analysis_widget import AnalysisWidget

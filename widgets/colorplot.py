@@ -2,7 +2,7 @@ import sys
 import pyqtgraph as pg
 import numpy as np
 import pandas as pd
-from PyQt5 import QtWidgets, QtGui
+from PySide2 import QtWidgets, QtGui
 
 
 class ColorPlot(pg.PlotWidget):

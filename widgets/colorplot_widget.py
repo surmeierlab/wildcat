@@ -1,6 +1,6 @@
 import sys
 from itertools import product
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PySide2 import QtCore, QtWidgets, QtGui
 import numpy as np
 from widgets.colorplot import ColorPlot
 

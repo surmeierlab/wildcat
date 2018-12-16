@@ -1,6 +1,6 @@
 import sys
 import pyqtgraph as pg
-from PyQt5 import QtGui, QtWidgets
+from PySide2 import QtGui, QtWidgets
 import numpy as np
 from scipy.optimize import curve_fit
 
