@@ -1,7 +1,9 @@
+import os
 import sys
 import pyqtgraph as pg
 import numpy as np
 import pandas as pd
+from pkg_resources import resource_filename
 from PySide2 import QtWidgets, QtGui
 
 
@@ -19,7 +21,8 @@ class ColorPlot(pg.PlotWidget):
         self.plt = self.plotItem
 
         # colors from cmap file
-        rgbs = np.loadtxt('./extra/voltam_color.csv', delimiter=',')
+        color_file = os.path.abspath(resource_filename('wildcat', 'extra/voltam_color.csv'))
+        rgbs = np.loadtxt(color_file, delimiter=',')
         alphas = np.full((len(rgbs), 1), 1.0)
         self.colors = np.append(rgbs, alphas, axis=1)
 

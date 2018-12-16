@@ -1,4 +1,4 @@
-import extra.io as io
+from .extra import io
 from PySide2 import QtCore
 import numpy as np
 from scipy.signal import bessel, butter, lfilter

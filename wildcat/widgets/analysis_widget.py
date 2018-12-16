@@ -1,7 +1,7 @@
 import sys
 from PySide2 import QtWidgets
-from widgets.voltammetry_plot_widget import VoltammetryPlotWidget
-from widgets.kinetics_widget import KineticsWidget
+from .voltammetry_plot_widget import VoltammetryPlotWidget
+from .kinetics_widget import KineticsWidget
 
 
 class AnalysisWidget(QtWidgets.QWidget):

@@ -3,8 +3,8 @@ import os
 from PySide2 import QtCore, QtWidgets
 import neurphys.read_abf as abf
 # import neurphys.read_pv as rpv
-from widgets.analysis_widget import AnalysisWidget
-from data_manager import DataManager
+from .widgets.analysis_widget import AnalysisWidget
+from .data_manager import DataManager
 import logging
 import traceback
 import time
@@ -213,7 +213,9 @@ class RecordingDialog(QtWidgets.QDialog):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG, filename='./error.log',
+    save_dir = os.path.abspath(os.path.exists('~/Desktop'))
+    save_path = os.path.join(save_dir, 'error.log')
+    logging.basicConfig(level=logging.DEBUG, filename=save_path,
                         filemode='w')
 
     def log_uncaught_exceptions(ex_cls, ex, tb):

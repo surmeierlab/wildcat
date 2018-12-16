@@ -2,7 +2,7 @@ import sys
 from itertools import product
 from PySide2 import QtCore, QtWidgets, QtGui
 import numpy as np
-from widgets.colorplot import ColorPlot
+from .colorplot import ColorPlot
 
 
 class ColorPlotWidget(QtWidgets.QWidget):
