@@ -3,6 +3,7 @@ import os
 import time
 import logging
 import traceback
+import ctypes
 from PySide2.QtWidgets import QApplication
 from .wildcat import MainWindow
 
@@ -14,6 +15,9 @@ def _log_uncaught_exceptions(ex_cls, ex, tb):
 
 def run_app():
     """Main entry point for starting application"""
+    # fix to allow icon to show up in Windows
+    myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     # logging
     save_dir = os.path.abspath(os.path.expanduser('~/Desktop'))

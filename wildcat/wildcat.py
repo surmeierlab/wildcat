@@ -1,6 +1,7 @@
 import sys
 import os
-from PySide2 import QtCore, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
+from pkg_resources import resource_filename
 import neurphys.read_abf as abf
 # import neurphys.read_pv as rpv
 from .widgets.analysis_widget import AnalysisWidget
@@ -29,6 +30,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("Wildcat")
         self.ratio = dpi / 96
         self.resize(1400*self.ratio, 800*self.ratio)
+
+        # window icon
+        self.icon = QtGui.QIcon()
+        icon_file = resource_filename('wildcat', f'icons/NU Logo.png')
+        self.icon.addFile(icon_file, QtCore.QSize(256, 256))
+        self.setWindowIcon(self.icon)
 
         self.menubar = self.menuBar()
         self.setup_file_menu()
